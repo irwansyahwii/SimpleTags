@@ -19,7 +19,7 @@ class FamousInitializer{
                 this.getRootContext().emit('resize', {});
             });            
 
-        }, 1)
+        }, 1);
 
     }
 

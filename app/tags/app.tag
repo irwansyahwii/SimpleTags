@@ -5,21 +5,31 @@ require('functional/app-dispatcher/app-dispatcher.tag');
 require('functional/app-router/app-router.tag');
  -->
 
+require("../styles/styles.css");
 require("surface/surface.tag");
 require("input-surface/input-surface.tag");
 require("layout-controller/layout-controller.tag");
+require("autosize-text-area/autosize-text-area.tag");
 
 
 <app>
-	<layout-controller id="mainLayout" onready={this.onready}>
-		<input-surface id="header" placeholder="Your name..."></input-surface>
+	<layout-controller id="mainLayout" layout_function={mainLayoutFunction} layout_options={mainLayoutOptions}  onready={this.onready}>
+		<input-surface id="header" classes={['name-input']} value={localStorage.name} placeholder="Your name..."></input-surface>
 		<surface id="content">
 		  <h3>Hi!</h3><p>I'm a surface!<br>I live inside a context.</p><p>You can add <b>HTML</b> content to me and style me with <b>CSS!</b></p>
 
 		</surface>
-		<layout-controller id="footer">
-			<surface id="back"></surface>
+
+		<layout-controller id="footer" layout_function={parent.footerLayoutFunction}>
+			
+			<autosize-text-area id="input" classes={['message-input']} resize="none" placeholder="Enter your message here..."></autosize-text-area>
+			<surface id="send" classes={['message-send', 'button']} width={60} height={undefined}>
+				Send
+			</surface>
+			<surface id="back" classes={['message-back']} ></surface>
+
 		</layout-controller>
+
 	</layout-controller>
 
 	<script type="text/es6">
@@ -27,8 +37,68 @@ require("layout-controller/layout-controller.tag");
 		import FamousInitializer from "shared/FamousInitializer";
 
 
-		this.onready = ()=>{
+		this.mainLayoutFunction = (context, options) =>{
+			var dock = new LayoutDockHelper(context, options);
+            dock.top('header', options.headerSize, 1);
+            dock.bottom('footer', options.footerSize, 1);
+            dock.fill('content', 1);			
 
+		}
+		this.mainLayoutOptions = {
+            headerSize: 34,
+            footerSize: 50			
+		}
+
+		this.footerLayoutFunction = {
+			dock:[
+				['fill', 'back'],
+				['left', undefined, 8],
+				['top', undefined, 8],
+				['right', undefined, 8],
+				['bottom', undefined, 8],
+				['right', 'send', undefined, 1],
+				['fill', 'input', 1]
+			]
+		}
+
+
+        $(document).ready(()=>{
+			let sendButton = document.getElementById("send");
+			
+			sendButton.on("click", (e, o)=>{
+				alert("heloo");
+			})
+
+			let textBoxName = $("#header")[0];
+			textBoxName.on("change", ()=>{
+				localStorage.name = textBoxName.getValue();
+			});
+
+			let textBoxMessage = $("#input")[0];
+			textBoxMessage.on("scrollHeightChanged", ()=>{
+				var height = Math.max(Math.min(textBoxMessage.getScrollHeight() + 16, 200), 50);
+				if (this.mainLayout.getLayoutOptions().footerSize !== height) {
+					this.mainLayout.setLayoutOptions({footerSize: height});
+            		return true;
+        		}
+        		return false;
+
+			});
+
+			textBoxMessage.on("keydown", (e) =>{
+				if(e.keyCode === 13){
+					e.preventDefault();
+
+				}
+			});
+        });
+
+
+		this.onready = ()=>{
+			console.log("app.onready called");
+
+
+			/* Another way to configure the layout
 			this.mainLayout.layoutControllerOptions.layout = (context, options)=>{
 				var dock = new LayoutDockHelper(context, options);
                 dock.top('header', options.headerSize, 1);
@@ -41,7 +111,8 @@ require("layout-controller/layout-controller.tag");
                 footerSize: 50
             };
 
-			this.mainLayout.refresh();
+			 this.mainLayout.refresh();
+			*/
 
 
 

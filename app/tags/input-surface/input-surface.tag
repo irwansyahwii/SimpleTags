@@ -19,11 +19,20 @@
             attributes.id = this.root.id || "";            
 
             this.root.inputSurfaceInstance = new InputSurface({
-                
+                classes: opts.classes,
                 placeholder: opts.placeholder,
                 size:[opts.width, opts.height],
-                attributes: attributes
+                attributes: attributes,
+                value: opts.value
             });
+
+            this.root.on = (ename, ehandler) =>{
+                this.root.inputSurfaceInstance.on(ename, ehandler);
+            }
+
+            this.root.getValue = ()=>{
+                return this.root.inputSurfaceInstance.getValue();
+            }
 
             
 

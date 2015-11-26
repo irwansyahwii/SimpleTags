@@ -6,6 +6,9 @@
         import Surface from "famous/core/Surface";
 
 
+
+
+
         this.on("mount", ()=>{
 
 
@@ -18,16 +21,23 @@
             
 
             let attributes = {};
-            attributes.id = this.root.id || "";            
+            attributes.id = this.root.id || "";      
+
+            let properties = opts.properties;
+
+            // console.log(opts);      
 
             this.root.surfaceInstance = new Surface({
+                classes: opts.classes,
                 content: this.root.innerHTML,
                 size:[opts.width, opts.height],
                 attributes: attributes,
-                properties:{
-                    backgroundColor: 'rgb(240, 238, 233)'
-                }
+                properties:properties
             });
+
+            this.root.on = (ename, ehandler) =>{
+                this.root.surfaceInstance.on(ename, ehandler);
+            };
 
             this.root.getFamousInstance = ()=>{
                 return this.root.surfaceInstance;
